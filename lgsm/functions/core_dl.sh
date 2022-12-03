@@ -448,14 +448,14 @@ fn_fetch_file_github() {
 	github_fileurl_name="${2}"
 	# For legacy versions - code can be removed at a future date
 	if [ "${legacymode}" == "1" ]; then
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 	# If master branch will currently running LinuxGSM version to prevent "version mixing". This is ignored if a fork.
 	elif [ "${githubbranch}" == "master" ] && [ "${githubuser}" == "GameServerManager" ] && [ "${commandname}" != "UPDATE-LGSM" ]; then
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 	else
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 	fi
 	remote_fileurl_name="GitHub"
@@ -474,10 +474,10 @@ fn_check_file_github() {
 	github_fileurl_dir="${1}"
 	github_fileurl_name="${2}"
 	if [ "${githubbranch}" == "master" ] && [ "${githubuser}" == "GameServerManager" ] && [ "${commandname}" != "UPDATE-LGSM" ]; then
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 	else
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 	fi
 	remote_fileurl_name="GitHub"
@@ -491,10 +491,10 @@ fn_fetch_config() {
 	github_fileurl_name="${2}"
 	# If master branch will currently running LinuxGSM version to prevent "version mixing". This is ignored if a fork.
 	if [ "${githubbranch}" == "master" ] && [ "${githubuser}" == "GameServerManager" ] && [ "${commandname}" != "UPDATE-LGSM" ]; then
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 	else
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 	fi
 	remote_fileurl_name="GitHub"
@@ -515,10 +515,10 @@ fn_fetch_function() {
 	github_fileurl_name="${functionfile}"
 	# If master branch will currently running LinuxGSM version to prevent "version mixing". This is ignored if a fork.
 	if [ "${githubbranch}" == "master" ] && [ "${githubuser}" == "GameServerManager" ] && [ "${commandname}" != "UPDATE-LGSM" ]; then
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 	else
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 	fi
 	remote_fileurl_name="GitHub"
@@ -539,10 +539,10 @@ fn_update_function() {
 	github_fileurl_name="${functionfile}"
 	# If master branch will currently running LinuxGSM version to prevent "version mixing". This is ignored if a fork.
 	if [ "${githubbranch}" == "master" ] && [ "${githubuser}" == "GameServerManager" ] && [ "${commandname}" != "UPDATE-LGSM" ]; then
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${version}/${github_fileurl_dir}/${github_fileurl_name}"
 	else
-		remote_fileurl="https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
+		remote_fileurl="https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 		remote_fileurl_backup="https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_fileurl_dir}/${github_fileurl_name}"
 	fi
 	remote_fileurl_name="GitHub"
