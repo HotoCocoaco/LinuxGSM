@@ -19,7 +19,7 @@ fn_script_log_info "Updating LinuxGSM"
 fn_print_dots "Selecting repo"
 fn_script_log_info "Selecting repo"
 # Select remotereponame
-curl --connect-timeout 10 -IsfL "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/linuxgsm.sh" 1> /dev/null
+curl --connect-timeout 10 -IsfL "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/linuxgsm.sh" 1> /dev/null
 if [ $? != "0" ]; then
 	curl --connect-timeout 10 -IsfL "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/linuxgsm.sh" 1> /dev/null
 	if [ $? != "0" ]; then
@@ -38,7 +38,7 @@ fi
 # Check linuxsm.sh
 echo -en "checking ${remotereponame} linuxgsm.sh...\c"
 if [ "${remotereponame}" == "GitHub" ]; then
-	curl --connect-timeout 10 -IsfL "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/linuxgsm.sh" 1> /dev/null
+	curl --connect-timeout 10 -IsfL "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/linuxgsm.sh" 1> /dev/null
 else
 	curl --connect-timeout 10 -IsfL "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/linuxgsm.sh" 1> /dev/null
 fi
@@ -50,7 +50,7 @@ if [ $? != "0" ]; then
 fi
 
 if [ "${remotereponame}" == "GitHub" ]; then
-	tmp_script_diff=$(diff "${tmpdir}/linuxgsm.sh" <(curl --connect-timeout 10 -s "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/linuxgsm.sh"))
+	tmp_script_diff=$(diff "${tmpdir}/linuxgsm.sh" <(curl --connect-timeout 10 -s "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/linuxgsm.sh"))
 else
 	tmp_script_diff=$(diff "${tmpdir}/linuxgsm.sh" <(curl --connect-timeout 10 -s "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/linuxgsm.sh"))
 fi
@@ -118,7 +118,7 @@ fi
 echo -en "checking ${remotereponame} config _default.cfg...\c"
 fn_script_log_info "Checking ${remotereponame} config _default.cfg"
 if [ "${remotereponame}" == "GitHub" ]; then
-	curl --connect-timeout 10 -IsfL "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/config-default/config-lgsm/${gameservername}/_default.cfg" 1> /dev/null
+	curl --connect-timeout 10 -IsfL "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/config-default/config-lgsm/${gameservername}/_default.cfg" 1> /dev/null
 else
 	curl --connect-timeout 10 -IsfL "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/lgsm/config-default/config-lgsm/${gameservername}/_default.cfg" 1> /dev/null
 fi
@@ -130,7 +130,7 @@ if [ $? != "0" ]; then
 fi
 
 if [ "${remotereponame}" == "GitHub" ]; then
-	config_file_diff=$(diff "${configdirdefault}/config-lgsm/${gameservername}/_default.cfg" <(curl --connect-timeout 10 -s "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/config-default/config-lgsm/${gameservername}/_default.cfg"))
+	config_file_diff=$(diff "${configdirdefault}/config-lgsm/${gameservername}/_default.cfg" <(curl --connect-timeout 10 -s "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/config-default/config-lgsm/${gameservername}/_default.cfg"))
 else
 	config_file_diff=$(diff "${configdirdefault}/config-lgsm/${gameservername}/_default.cfg" <(curl --connect-timeout 10 -s "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/lgsm/config-default/config-lgsm/${gameservername}/_default.cfg"))
 fi
@@ -152,7 +152,7 @@ if [ -f "${datadir}/${distroid}-${distroversioncsv}.csv" ]; then
 	echo -en "checking ${remotereponame} config ${distroid}-${distroversioncsv}.csv...\c"
 	fn_script_log_info "Checking ${remotereponame} ${distroid}-${distroversioncsv}.csv"
 	if [ "${remotereponame}" == "GitHub" ]; then
-		curl --connect-timeout 10 -IsfL "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/${distroid}-${distroversioncsv}.csv" 1> /dev/null
+		curl --connect-timeout 10 -IsfL "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/${distroid}-${distroversioncsv}.csv" 1> /dev/null
 	else
 		curl --connect-timeout 10 -IsfL "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/lgsm/data/${distroid}-${distroversioncsv}.csv" 1> /dev/null
 	fi
@@ -164,7 +164,7 @@ if [ -f "${datadir}/${distroid}-${distroversioncsv}.csv" ]; then
 	fi
 
 	if [ "${remotereponame}" == "GitHub" ]; then
-		config_file_diff=$(diff "${datadir}/${distroid}-${distroversioncsv}.csv" <(curl --connect-timeout 10 -s "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/${distroid}-${distroversioncsv}.csv"))
+		config_file_diff=$(diff "${datadir}/${distroid}-${distroversioncsv}.csv" <(curl --connect-timeout 10 -s "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/${distroid}-${distroversioncsv}.csv"))
 	else
 		config_file_diff=$(diff "${datadir}/${distroid}-${distroversioncsv}.csv" <(curl --connect-timeout 10 -s "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/lgsm/data/${distroid}-${distroversioncsv}.csv"))
 	fi
@@ -182,49 +182,51 @@ fi
 # Check and update modules.
 if [ -n "${functionsdir}" ]; then
 	if [ -d "${functionsdir}" ]; then
-		cd "${functionsdir}" || exit
-		for functionfile in *; do
-			# check if module exists in the repo and remove if missing.
-			# commonly used if module names change.
-			echo -en "checking ${remotereponame} module ${functionfile}...\c"
-			github_file_url_dir="lgsm/functions"
-			if [ "${remotereponame}" == "GitHub" ]; then
-				curl --connect-timeout 10 -IsfL "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_file_url_dir}/${functionfile}" 1> /dev/null
-			else
-				curl --connect-timeout 10 -IsfL "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_file_url_dir}/${functionfile}" 1> /dev/null
-			fi
-			if [ $? != 0 ]; then
-				fn_print_error_eol_nl
-				fn_script_log_error "Checking ${remotereponame} module ${functionfile}"
-				echo -en "removing module ${functionfile}...\c"
-				if ! rm -f "${functionfile:?}"; then
-					fn_print_fail_eol_nl
-					fn_script_log_fatal "Removing module ${functionfile}"
-					core_exit.sh
-				else
-					fn_print_ok_eol_nl
-					fn_script_log_pass "Removing module ${functionfile}"
-				fi
-			else
-				# compare file
+		(
+			cd "${functionsdir}" || exit
+			for functionfile in *; do
+				# check if module exists in the repo and remove if missing.
+				# commonly used if module names change.
+				echo -en "checking ${remotereponame} module ${functionfile}...\c"
+				github_file_url_dir="lgsm/functions"
 				if [ "${remotereponame}" == "GitHub" ]; then
-					function_file_diff=$(diff "${functionsdir}/${functionfile}" <(curl --connect-timeout 10 -s "https://raw.githubusercontents.com/${githubuser}/${githubrepo}/${githubbranch}/${github_file_url_dir}/${functionfile}"))
+					curl --connect-timeout 10 -IsfL "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_file_url_dir}/${functionfile}" 1> /dev/null
 				else
-					function_file_diff=$(diff "${functionsdir}/${functionfile}" <(curl --connect-timeout 10 -s "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_file_url_dir}/${functionfile}"))
+					curl --connect-timeout 10 -IsfL "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_file_url_dir}/${functionfile}" 1> /dev/null
 				fi
+				if [ $? != 0 ]; then
+					fn_print_error_eol_nl
+					fn_script_log_error "Checking ${remotereponame} module ${functionfile}"
+					echo -en "removing module ${functionfile}...\c"
+					if ! rm -f "${functionfile:?}"; then
+						fn_print_fail_eol_nl
+						fn_script_log_fatal "Removing module ${functionfile}"
+						core_exit.sh
+					else
+						fn_print_ok_eol_nl
+						fn_script_log_pass "Removing module ${functionfile}"
+					fi
+				else
+					# compare file
+					if [ "${remotereponame}" == "GitHub" ]; then
+						function_file_diff=$(diff "${functionsdir}/${functionfile}" <(curl --connect-timeout 10 -s "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/${github_file_url_dir}/${functionfile}"))
+					else
+						function_file_diff=$(diff "${functionsdir}/${functionfile}" <(curl --connect-timeout 10 -s "https://bitbucket.org/${githubuser}/${githubrepo}/raw/${githubbranch}/${github_file_url_dir}/${functionfile}"))
+					fi
 
-				# results
-				if [ "${function_file_diff}" != "" ]; then
-					fn_print_update_eol_nl
-					fn_script_log_update "Checking ${remotereponame} module ${functionfile}"
-					rm -rf "${functionsdir:?}/${functionfile}"
-					fn_update_function
-				else
-					fn_print_ok_eol_nl
-					fn_script_log_pass "Checking ${remotereponame} module ${functionfile}"
+					# results
+					if [ "${function_file_diff}" != "" ]; then
+						fn_print_update_eol_nl
+						fn_script_log_update "Checking ${remotereponame} module ${functionfile}"
+						rm -rf "${functionsdir:?}/${functionfile}"
+						fn_update_function
+					else
+						fn_print_ok_eol_nl
+						fn_script_log_pass "Checking ${remotereponame} module ${functionfile}"
+					fi
 				fi
-			fi
-		done
+			done
+		)
 	fi
 fi
 
