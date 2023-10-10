@@ -1,40 +1,27 @@
 #!/bin/bash
-# LinuxGSM update_minecraft_bedrock.sh module
+# LinuxGSM update_mc.sh module
 # Author: Daniel Gibbs
 # Contributors: http://linuxgsm.com/contrib
 # Website: https://linuxgsm.com
-# Description: Handles updating of Minecraft Bedrock servers.
+# Description: Handles updating of Minecraft: Java Edition servers.
 
 moduleselfname="$(basename "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 fn_update_dl() {
-	fn_fetch_file "${remotebuildurl}" "" "" "" "${tmpdir}" "bedrock_server.${remotebuildversion}.zip" "nochmodx" "norun" "noforce" "nohash"
-	echo -e "Extracting to ${serverfiles}...\c"
-	if [ "${firstcommandname}" == "INSTALL" ]; then
-		unzip -oq "${tmpdir}/bedrock_server.${remotebuildversion}.zip" -x "server.properties" -d "${serverfiles}"
-	else
-		unzip -oq "${tmpdir}/bedrock_server.${remotebuildversion}.zip" -x "permissions.json" "server.properties" "allowlist.json" -d "${serverfiles}"
-	fi
-	local exitcode=$?
-	if [ "${exitcode}" != 0 ]; then
-		fn_print_fail_eol_nl
-		fn_script_log_fatal "Extracting ${local_filename}"
-		if [ -f "${lgsmlog}" ]; then
-			echo -e "${extractcmd}" >> "${lgsmlog}"
-		fi
-		echo -e "${extractcmd}"
-		core_exit.sh
-	else
-		fn_print_ok_eol_nl
-		fn_script_log_pass "Extracting ${local_filename}"
-	fi
+	# Download and extract files to serverfiles.
+	fn_fetch_file "${remotebuildurl}" "" "" "" "${tmpdir}" "${remotebuildfilename}" "chmodx" "norun" "noforce" "nohash"
+	cp -f "${tmpdir}/${remotebuildfilename}" "${serverfiles}/${executable#./}"
+	fn_clear_tmp
 }
 
 fn_update_localbuild() {
 	# Gets local build info.
 	fn_print_dots "Checking local build: ${remotelocation}"
-	# Uses log file to get local build.
-	localbuild=$(grep Version "${consolelogdir}"/* 2> /dev/null | tail -1 | sed 's/.*Version: //' | tr -d '\000-\011\013-\037')
+	# Uses executable to get local build.
+	if [ -d "${executabledir}" ]; then
+		cd "${executabledir}" || exit
+		localbuild=$(unzip -p "minecraft_server.jar" version.json | jq -r '.id')
+	fi
 	if [ -z "${localbuild}" ]; then
 		fn_print_error "Checking local build: ${remotelocation}: missing local build info"
 		fn_script_log_error "Missing local build info"
@@ -47,15 +34,24 @@ fn_update_localbuild() {
 }
 
 fn_update_remotebuild() {
-	# Random number for userAgent
-	randnum=$((1 + RANDOM % 5000))
 	# Get remote build info.
-	if [ "${mcversion}" == "latest" ]; then
-		remotebuildversion=$(curl -H "Accept-Encoding: identity" -H "Accept-Language: en" -Ls -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.${randnum}.212 Safari/537.36" "https://www.minecraft.net/en-us/download/server/bedrock/" | grep -o 'https://minecraft.azureedge.net/bin-linux/[^"]*' | sed 's/.*\///' | grep -Eo "[.0-9]+[0-9]")
+	apiurl="https://launchermeta.mojang.com/mc/game/version_manifest.json"
+	remotebuildresponse=$(curl -s "${apiurl}")
+	# Latest release.
+	if [ "${branch}" == "release" ] && [ "${mcversion}" == "latest" ]; then
+		remotebuildversion=$(echo "${remotebuildresponse}" | jq -r '.latest.release')
+	# Latest snapshot.
+	elif [ "${branch}" == "snapshot" ] && [ "${mcversion}" == "latest" ]; then
+		remotebuildversion=$(echo "${remotebuildresponse}" | jq -r '.latest.snapshot')
+	# Specific release/snapshot.
 	else
-		remotebuildversion="${mcversion}"
+		remotebuildversion=$(echo "${remotebuildresponse}" | jq -r --arg branch "${branch}" --arg mcversion "${mcversion}" '.versions | .[] | select(.type==$branch and .id==$mcversion) | .id')
 	fi
-	remotebuildurl="https://minecraft.azureedge.net/bin-linux/bedrock-server-${remotebuildversion}.zip"
+	remotebuildfilename="minecraft_server.${remotebuildversion}.jar"
+	# Generate link to version manifest json.
+	remotebuildmanifest=$(echo "${remotebuildresponse}" | jq -r --arg branch "${branch}" --arg mcversion "${remotebuildversion}" '.versions | .[] | select(.type==$branch and .id==$mcversion) | .url')
+	# Generate link to server.jar
+	remotebuildurl=$(curl -s "${remotebuildmanifest}" | jq -r '.downloads.server.url')
 
 	if [ "${firstcommandname}" != "INSTALL" ]; then
 		fn_print_dots "Checking remote build: ${remotelocation}"
@@ -80,7 +76,10 @@ fn_update_remotebuild() {
 
 fn_update_compare() {
 	fn_print_dots "Checking for update: ${remotelocation}"
+	# Update has been found or force update.
 	if [ "${localbuild}" != "${remotebuildversion}" ] || [ "${forceupdate}" == "1" ]; then
+		# Create update lockfile.
+		date '+%s' > "${lockdir:?}/update.lock"
 		fn_print_ok_nl "Checking for update: ${remotelocation}"
 		echo -en "\n"
 		echo -e "Update available"
@@ -106,6 +105,7 @@ fn_update_compare() {
 		fn_script_log_info "${localbuild} > ${remotebuildversion}"
 
 		if [ "${commandname}" == "UPDATE" ]; then
+			date +%s > "${lockdir}/last-updated.lock"
 			unset updateonstart
 			check_status.sh
 			# If server stopped.
@@ -133,7 +133,6 @@ fn_update_compare() {
 				fn_firstcommand_reset
 			fi
 			unset exitbypass
-			date +%s > "${lockdir}/lastupdate.lock"
 			alert="update"
 		elif [ "${commandname}" == "CHECK-UPDATE" ]; then
 			alert="check-update"
@@ -166,7 +165,7 @@ fn_update_compare() {
 }
 
 # The location where the builds are checked and downloaded.
-remotelocation="minecraft.net"
+remotelocation="mojang.com"
 
 if [ "${firstcommandname}" == "INSTALL" ]; then
 	fn_update_remotebuild

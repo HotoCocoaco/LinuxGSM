@@ -1,5 +1,5 @@
 #!/bin/bash
-# LinuxGSM update_vintagestory.sh module
+# LinuxGSM update_vints.sh module
 # Author: Daniel Gibbs
 # Contributors: http://linuxgsm.com/contrib
 # Website: https://linuxgsm.com
@@ -20,7 +20,7 @@ fn_update_localbuild() {
 	# Uses executable to get local build.
 	if [ -d "${executabledir}" ]; then
 		cd "${executabledir}" || exit
-		localbuild="$(${preexecutable} ${executable} --version | sed '/^[[:space:]]*$/d')"
+		localbuild="$(${preexecutable} ${executable} --version 2> /dev/null | sed '/^[[:space:]]*$/d')"
 	fi
 	if [ -z "${localbuild}" ]; then
 		fn_print_error "Checking local build: ${remotelocation}: missing local build info"
@@ -42,9 +42,9 @@ fn_update_remotebuild() {
 	else
 		remotebuildversion=$(echo "${remotebuildresponse}" | jq -r '[ to_entries[] ] | .[].key' | grep -E "\-rc|\-pre" | sort -r -V | head -1)
 	fi
-	remotebuildfilename=$(echo "${remotebuildresponse}" | jq --arg remotebuildversion "${remotebuildversion}" -r '.[$remotebuildversion].server.filename')
-	remotebuildurl=$(echo "${remotebuildresponse}" | jq --arg remotebuildversion "${remotebuildversion}" -r '.[$remotebuildversion].server.urls.cdn')
-	remotebuildhash=$(echo "${remotebuildresponse}" | jq --arg remotebuildversion "${remotebuildversion}" -r '.[$remotebuildversion].server.md5')
+	remotebuildfilename=$(echo "${remotebuildresponse}" | jq --arg remotebuildversion "${remotebuildversion}" -r '.[$remotebuildversion].linuxserver.filename')
+	remotebuildurl=$(echo "${remotebuildresponse}" | jq --arg remotebuildversion "${remotebuildversion}" -r '.[$remotebuildversion].linuxserver.urls.cdn')
+	remotebuildhash=$(echo "${remotebuildresponse}" | jq --arg remotebuildversion "${remotebuildversion}" -r '.[$remotebuildversion].linuxserver.md5')
 
 	if [ "${firstcommandname}" != "INSTALL" ]; then
 		fn_print_dots "Checking remote build: ${remotelocation}"
@@ -69,7 +69,10 @@ fn_update_remotebuild() {
 
 fn_update_compare() {
 	fn_print_dots "Checking for update: ${remotelocation}"
+	# Update has been found or force update.
 	if [ "${localbuild}" != "${remotebuildversion}" ] || [ "${forceupdate}" == "1" ]; then
+		# Create update lockfile.
+		date '+%s' > "${lockdir:?}/update.lock"
 		fn_print_ok_nl "Checking for update: ${remotelocation}"
 		echo -en "\n"
 		echo -e "Update available"
@@ -95,6 +98,7 @@ fn_update_compare() {
 		fn_script_log_info "${localbuild} > ${remotebuildversion}"
 
 		if [ "${commandname}" == "UPDATE" ]; then
+			date +%s > "${lockdir}/last-updated.lock"
 			unset updateonstart
 			check_status.sh
 			# If server stopped.
@@ -122,7 +126,6 @@ fn_update_compare() {
 				fn_firstcommand_reset
 			fi
 			unset exitbypass
-			date +%s > "${lockdir}/lastupdate.lock"
 			alert="update"
 		elif [ "${commandname}" == "CHECK-UPDATE" ]; then
 			alert="check-update"
