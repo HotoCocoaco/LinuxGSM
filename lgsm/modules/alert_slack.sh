@@ -70,7 +70,7 @@ json=$(
 					"elements": [
 						{
 							"type": "image",
-							"image_url": "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
+							"image_url": "https://raw.gitmirror.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
 							"alt_text": "LinuxGSM icon"
 						},
 						{
@@ -185,7 +185,7 @@ json+=$(
 					"elements": [
 						{
 							"type": "image",
-							"image_url": "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
+							"image_url": "https://raw.gitmirror.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
 							"alt_text": "LinuxGSM icon"
 						},
 						{

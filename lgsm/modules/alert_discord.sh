@@ -11,14 +11,14 @@ json=$(
 	cat << EOF
 {
     "username": "LinuxGSM",
-    "avatar_url": "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
+    "avatar_url": "https://raw.gitmirror.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
     "file": "content",
     "embeds": [
         {
             "author": {
                 "name": "LinuxGSM Alert",
                 "url": "",
-                "icon_url": "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg"
+                "icon_url": "https://raw.gitmirror.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg"
             },
             "title": "${alerttitle}",
             "url": "",
@@ -67,7 +67,7 @@ json+=$(
 	cat << EOF
             ],
             "footer": {
-                "icon_url": "https://raw.githubusercontent.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
+                "icon_url": "https://raw.gitmirror.com/${githubuser}/${githubrepo}/${githubbranch}/lgsm/data/alert_discord_logo.jpg",
                 "text": "Sent by LinuxGSM ${version}"
             }
         }
