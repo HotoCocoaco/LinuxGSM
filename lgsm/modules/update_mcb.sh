@@ -1,7 +1,7 @@
 #!/bin/bash
 # LinuxGSM update_mcb.sh module
 # Author: Daniel Gibbs
-# Contributors: http://linuxgsm.com/contrib
+# Contributors: https://linuxgsm.com/contrib
 # Website: https://linuxgsm.com
 # Description: Handles updating of Minecraft Bedrock servers.
 
@@ -15,10 +15,10 @@ fn_update_dl() {
 	else
 		unzip -oq "${tmpdir}/bedrock_server.${remotebuildversion}.zip" -x "permissions.json" "server.properties" "allowlist.json" -d "${serverfiles}"
 	fi
-	local exitcode=$?
-	if [ "${exitcode}" != 0 ]; then
+	exitcode=$?
+	if [ "${exitcode}" -ne 0 ]; then
 		fn_print_fail_eol_nl
-		fn_script_log_fatal "Extracting ${local_filename}"
+		fn_script_log_fail "Extracting ${local_filename}"
 		if [ -f "${lgsmlog}" ]; then
 			echo -e "${extractcmd}" >> "${lgsmlog}"
 		fi
@@ -27,7 +27,9 @@ fn_update_dl() {
 		core_exit.sh
 	else
 		fn_print_ok_eol_nl
-		fn_script_log_pass "Extracting ${local_filename}"
+		if [ -f "${lgsmlog}" ]; then
+			fn_script_log_pass "Extracting ${local_filename}"
+		fi
 		fn_clear_tmp
 	fi
 }
@@ -50,21 +52,21 @@ fn_update_localbuild() {
 
 fn_update_remotebuild() {
 	# Random number for userAgent
-	randnum=$((1 + RANDOM % 5000))
+	randomint=$(tr -dc 0-9 < /dev/urandom 2> /dev/null | head -c 4 | xargs)
 	# Get remote build info.
 	if [ "${mcversion}" == "latest" ]; then
-		remotebuildversion=$(curl -H "Accept-Encoding: identity" -H "Accept-Language: en" -Ls -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.${randnum}.212 Safari/537.36" "https://www.minecraft.net/en-us/download/server/bedrock/" | grep -o 'https://minecraft.azureedge.net/bin-linux/[^"]*' | sed 's/.*\///' | grep -Eo "[.0-9]+[0-9]")
+		remotebuildversion=$(curl -H "Accept-Encoding: identity" -H "Accept-Language: en" -Ls -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.${randomint}.212 Safari/537.36" "https://www.minecraft.net/en-us/download/server/bedrock/" | grep -o 'https://www.minecraft.net/bedrockdedicatedserver/bin-linux/[^"]*' | sed 's/.*\///' | grep -Eo "[.0-9]+[0-9]")
 	else
 		remotebuildversion="${mcversion}"
 	fi
-	remotebuildurl="https://minecraft.azureedge.net/bin-linux/bedrock-server-${remotebuildversion}.zip"
+	remotebuildurl="https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-${remotebuildversion}.zip"
 
 	if [ "${firstcommandname}" != "INSTALL" ]; then
 		fn_print_dots "Checking remote build: ${remotelocation}"
 		# Checks if remotebuildversion variable has been set.
 		if [ -z "${remotebuildversion}" ] || [ "${remotebuildversion}" == "null" ]; then
 			fn_print_fail "Checking remote build: ${remotelocation}"
-			fn_script_log_fatal "Checking remote build"
+			fn_script_log_fail "Checking remote build"
 			core_exit.sh
 		else
 			fn_print_ok "Checking remote build: ${remotelocation}"
@@ -74,7 +76,7 @@ fn_update_remotebuild() {
 		# Checks if remotebuild variable has been set.
 		if [ -z "${remotebuildversion}" ] || [ "${remotebuildversion}" == "null" ]; then
 			fn_print_failure "Unable to get remote build"
-			fn_script_log_fatal "Unable to get remote build"
+			fn_script_log_fail "Unable to get remote build"
 			core_exit.sh
 		fi
 	fi
@@ -122,7 +124,7 @@ fn_update_compare() {
 					command_start.sh
 					fn_firstcommand_reset
 					exitbypass=1
-					sleep 5
+					fn_sleep_time_5
 					command_stop.sh
 					fn_firstcommand_reset
 				fi
@@ -172,6 +174,12 @@ fn_update_compare() {
 
 # The location where the builds are checked and downloaded.
 remotelocation="minecraft.net"
+
+if [ "$(command -v jq 2> /dev/null)" ]; then
+	fn_print_fail_nl "jq is not installed"
+	fn_script_log_fatal "jq is not installed"
+	core_exit.sh
+fi
 
 if [ "${firstcommandname}" == "INSTALL" ]; then
 	fn_update_remotebuild

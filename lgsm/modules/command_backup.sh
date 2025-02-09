@@ -1,16 +1,14 @@
 #!/bin/bash
 # LinuxGSM command_backup.sh module
 # Author: Daniel Gibbs
-# Contributors: http://linuxgsm.com/contrib
+# Contributors: https://linuxgsm.com/contrib
 # Website: https://linuxgsm.com
 # Description: Creates a .tar.gz file in the backup directory.
 
 commandname="BACKUP"
-commandaction="Backing up"
+commandaction="Backup"
 moduleselfname="$(basename "$(readlink -f "${BASH_SOURCE[0]}")")"
 fn_firstcommand_set
-
-check.sh
 
 # Trap to remove lockfile on quit.
 fn_backup_trap() {
@@ -56,12 +54,14 @@ fn_backup_init() {
 	backupname="${selfname}-$(date '+%Y-%m-%d-%H%M%S')"
 
 	info_distro.sh
-	fn_print_dots "Backup starting"
-	fn_script_log_info "Backup starting"
-	fn_print_ok_nl "Backup starting"
+	fn_print_dots "Starting backup"
+	fn_script_log_info "Starting backup"
 	if [ ! -d "${backupdir}" ] || [ "${backupcount}" == "0" ]; then
-		fn_print_info_nl "There are no previous backups"
+		fn_print_info_nl "Starting backup: No previous backups found"
+		fn_script_log_info "No previous backups found"
 	else
+		fn_print_info_nl "Starting backup: Previous backups found"
+		fn_script_log_info "Previous backups found"
 		if [ "${lastbackupdaysago}" == "0" ]; then
 			daysago="less than 1 day ago"
 		elif [ "${lastbackupdaysago}" == "1" ]; then
@@ -101,32 +101,6 @@ fn_backup_dir() {
 	fi
 }
 
-# Migrate Backups from old dir before refactor
-fn_backup_migrate_olddir() {
-	# Check if old backup dir is there before the refactor and move the backups
-	if [ -d "${rootdir}/backups" ]; then
-		if [ "${rootdir}/backups" != "${backupdir}" ]; then
-			fn_print_dots "Backup directory is being migrated"
-			fn_script_log_info "Backup directory is being migrated"
-			fn_script_log_info "${rootdir}/backups > ${backupdir}"
-			mv "${rootdir}/backups/"* "${backupdir}" 2> /dev/null
-			exitcode=$?
-			if [ "${exitcode}" == 0 ]; then
-				rmdir "${rootdir}/backups" 2> /dev/null
-				exitcode=$?
-			fi
-			if [ "${exitcode}" != 0 ]; then
-				fn_print_error_nl "Backup directory is being migrated"
-				fn_script_log_error "Backup directory is being migrated"
-			else
-
-				fn_print_ok_nl "Backup directory is being migrated"
-				fn_script_log_pass "Backup directory is being migrated"
-			fi
-		fi
-	fi
-}
-
 fn_backup_create_lockfile() {
 	# Create lockfile.
 	date '+%s' > "${lockdir:?}/backup.lock"
@@ -141,29 +115,31 @@ fn_backup_compression() {
 	# Tells how much will be compressed using rootdirduexbackup value from info_distro and prompt for continue.
 	fn_print_info "A total of ${rootdirduexbackup} will be compressed."
 	fn_script_log_info "A total of ${rootdirduexbackup} will be compressed: ${backupdir}/${backupname}.tar.gz"
-	fn_print_dots "Backup (${rootdirduexbackup}) ${backupname}.tar.gz, in progress..."
-	fn_script_log_info "backup ${rootdirduexbackup} ${backupname}.tar.gz, in progress"
+	fn_print_dots "Backup (${rootdirduexbackup}) ${backupname}.tar.gz, in progress ..."
+	fn_script_log_info "Backup ${rootdirduexbackup} ${backupname}.tar.gz, in progress"
 	excludedir=$(fn_backup_relpath)
 
 	# Check that excludedir is a valid path.
 	if [ ! -d "${excludedir}" ]; then
 		fn_print_fail_nl "Problem identifying the previous backup directory for exclusion."
-		fn_script_log_fatal "Problem identifying the previous backup directory for exclusion"
+		fn_script_log_fail "Problem identifying the previous backup directory for exclusion"
 		core_exit.sh
 	fi
 
-	tar -czf "${backupdir}/${backupname}.tar.gz" -C "${rootdir}" --exclude "${excludedir}" --exclude "${lockdir}" ./.
-	local exitcode=$?
-	if [ "${exitcode}" != 0 ]; then
+	tar --use-compress-program=pigz -cf "${backupdir}/${backupname}.tar.gz" -C "${rootdir}" --exclude "${excludedir}" --exclude "${lockdir}" --exclude "${tmpdir}" ./.
+	exitcode=$?
+	if [ "${exitcode}" -ne 0 ]; then
 		fn_print_fail_eol
-		fn_script_log_fatal "Backup in progress: FAIL"
+		fn_script_log_fail "Backup in progress: FAIL"
 		echo -e "${extractcmd}" | tee -a "${lgsmlog}"
 		fn_print_fail_nl "Starting backup"
-		fn_script_log_fatal "Starting backup"
+		fn_script_log_fail "Starting backup"
 	else
 		fn_print_ok_eol
-		fn_print_ok_nl "Completed: ${backupname}.tar.gz, total size $(du -sh "${backupdir}/${backupname}.tar.gz" | awk '{print $1}')"
+		fn_print_ok_nl "Completed: ${italic}${backupname}.tar.gz${default}, total size $(du -sh "${backupdir}/${backupname}.tar.gz" | awk '{print $1}')"
 		fn_script_log_pass "Backup created: ${backupname}.tar.gz, total size $(du -sh "${backupdir}/${backupname}.tar.gz" | awk '{print $1}')"
+		alert="backup"
+		alert.sh
 	fi
 }
 
@@ -187,7 +163,7 @@ fn_backup_prune() {
 				# Display how many backups will be cleared.
 				echo -e "* Pruning: ${backupquotadiff} backup(s) has exceeded the ${maxbackups} backups limit"
 				fn_script_log_info "Pruning: ${backupquotadiff} backup(s) has exceeded the ${maxbackups} backups limit"
-				fn_sleep_time
+				fn_sleep_time_1
 				fn_print_dots "Pruning: Clearing ${backupquotadiff} backup(s)"
 				fn_script_log_info "Pruning: Clearing ${backupquotadiff} backup(s)"
 				# Clear backups over quota.
@@ -199,7 +175,7 @@ fn_backup_prune() {
 				# Display how many backups will be cleared.
 				echo -e "* Pruning: ${backupsoudatedcount} backup(s) are older than ${maxbackupdays} days."
 				fn_script_log_info "Pruning: ${backupsoudatedcount} backup(s) older than ${maxbackupdays} days."
-				fn_sleep_time
+				fn_sleep_time_1
 				fn_print_dots "Pruning: Clearing ${backupquotadiff} backup(s)."
 				fn_script_log_info "Pruning: Clearing ${backupquotadiff} backup(s)"
 				# Clear backups over quota
@@ -214,18 +190,18 @@ fn_backup_prune() {
 fn_backup_relpath() {
 	# Written by CedarLUG as a "realpath --relative-to" alternative in bash.
 	# Populate an array of tokens initialized from the rootdir components.
-	declare -a rdirtoks=($(readlink -f "${rootdir}" | sed "s/\// /g"))
+	mapfile -t rdirtoks < <(readlink -f "${rootdir}" | sed "s/\// /g")
 	if [ ${#rdirtoks[@]} -eq 0 ]; then
 		fn_print_fail_nl "Problem assessing rootdir during relative path assessment"
-		fn_script_log_fatal "Problem assessing rootdir during relative path assessment: ${rootdir}"
+		fn_script_log_fail "Problem assessing rootdir during relative path assessment: ${rootdir}"
 		core_exit.sh
 	fi
 
 	# Populate an array of tokens initialized from the backupdir components.
-	declare -a bdirtoks=($(readlink -f "${backupdir}" | sed "s/\// /g"))
+	mapfile -t bdirtoks < <(readlink -f "${backupdir}" | sed "s/\// /g")
 	if [ ${#bdirtoks[@]} -eq 0 ]; then
 		fn_print_fail_nl "Problem assessing backupdir during relative path assessment"
-		fn_script_log_fatal "Problem assessing backupdir during relative path assessment: ${rootdir}"
+		fn_script_log_fail "Problem assessing backupdir during relative path assessment: ${rootdir}"
 		core_exit.sh
 	fi
 
@@ -264,12 +240,14 @@ fn_backup_start_server() {
 	fi
 }
 
-# Run functions.
+fn_print_dots ""
+check.sh
+core_logs.sh
+
 fn_backup_check_lockfile
 fn_backup_init
 fn_backup_stop_server
 fn_backup_dir
-fn_backup_migrate_olddir
 fn_backup_create_lockfile
 fn_backup_compression
 fn_backup_prune
